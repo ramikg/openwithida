@@ -6,10 +6,9 @@ import winreg
 from pathlib import Path
 from distutils.version import StrictVersion
 
-import config
+from openwithida import config
 
 PYTHONW_EXE = 'pythonw.exe'
-OPENWITHIDA_PYW = 'openwithida.pyw'
 OPEN_WITH_IDA_VERB = 'Open with IDA'
 
 
@@ -73,7 +72,7 @@ def _get_pythonw_path():
 def _get_openwithida_path():
     openwithida_folder = Path(__file__).parent
 
-    openwithida_path = openwithida_folder / OPENWITHIDA_PYW
+    openwithida_path = openwithida_folder / config.openwithida_py
     if not openwithida_path.exists():
         raise OpenWithIdaInstallerFileDoesNotExistError(f'{openwithida_path} doesn\'t exist')
 
@@ -90,15 +89,21 @@ def _parse_args():
                         help='Path to pythonw.exe. '
                              'Defaults to the version you\'re running right now.')
     parser.add_argument('--openwithida-path', default=_get_openwithida_path(),
-                        help=f'Path to {OPENWITHIDA_PYW}. '
+                        help=f'Path to {config.openwithida_py}. '
                              'Defaults to the same folder as this script.')
 
     return parser.parse_args()
 
 
-def install_openwithida(ida_folder, pythonw_path, openwithida_path):
+def install_openwithida(ida_folder=None, pythonw_path=None, openwithida_path=None):
+    # Lazily calculate default values, as _get_openwithida_path()
+    # throws when executed during as part of setup.py
+    ida_folder = ida_folder or _get_newest_ida_folder()
+    pythonw_path = pythonw_path or _get_pythonw_path()
+    openwithida_path = openwithida_path or _get_openwithida_path()
+
     command = rf'"{pythonw_path}" "{openwithida_path}" "%1"'
-    exe_path = str(ida_folder / config.ida_32_exe)
+    exe_path = str(Path(ida_folder) / config.ida_32_exe)
 
     with winreg.CreateKey(winreg.HKEY_CURRENT_USER, config.registry_key) as hkey:
         # Set the "(Default)" value
