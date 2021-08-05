@@ -97,7 +97,7 @@ def _parse_args():
 
 def install_openwithida(ida_folder=None, pythonw_path=None, openwithida_path=None):
     # Lazily calculate default values, as _get_openwithida_path()
-    # throws when executed during as part of setup.py
+    # throws when executed as part of setup.py
     ida_folder = ida_folder or _get_newest_ida_folder()
     pythonw_path = pythonw_path or _get_pythonw_path()
     openwithida_path = openwithida_path or _get_openwithida_path()

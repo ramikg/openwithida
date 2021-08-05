@@ -36,7 +36,7 @@ class PostInstallHook(install):
         openwithida_path = Path(self.install_lib) / PACKAGE_NAME / config.openwithida_py
         if not openwithida_path.exists():
             raise OpenWithIdaPostInstallHookError(f'{openwithida_path} doesn\'t exist')
-        print(f'Found {config.openwithida_py}: {openwithida_path}')
+        print(f'Found {config.openwithida_py} at {openwithida_path}')
 
         installer.install_openwithida(openwithida_path=openwithida_path)
 
