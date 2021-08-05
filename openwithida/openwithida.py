@@ -31,8 +31,9 @@ def _create_detached_process(ida_path, input_path):
 
 
 def _get_ida_folder():
+    registry_key = '{}\\{}'.format(config.registry_key, config.registry_subkey)
     try:
-        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, config.registry_key) as hkey:
+        with winreg.OpenKey(config.registry_root_key, registry_key) as hkey:
             ida_exe_path = winreg.QueryValueEx(hkey, 'Icon')[0]
             return os.path.dirname(ida_exe_path)
     except FileNotFoundError:
