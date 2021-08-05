@@ -25,7 +25,7 @@ def _parse_args():
 
 def _create_detached_process(ida_path, input_path):
     creation_flags = subprocess.CREATE_NEW_PROCESS_GROUP | SUBPROCESS_DETACHED_PROCESS
-    subprocess.Popen([ida_path, input_path],
+    subprocess.Popen([str(ida_path), str(input_path)],
                      creationflags=creation_flags,
                      close_fds=True)
 
