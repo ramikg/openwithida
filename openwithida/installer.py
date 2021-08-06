@@ -9,7 +9,8 @@ from distutils.version import StrictVersion
 from openwithida import config
 
 PYTHONW_EXE = 'pythonw.exe'
-OPEN_WITH_IDA_VERB = 'Open with IDA'
+# The access key is 'w' as the other letters are taken by Windows/popular enough software
+OPEN_WITH_IDA_VERB = 'Open &with IDA'
 
 
 class OpenWithIdaInstallerIllegalIdaFolderError(Exception):
