@@ -70,16 +70,6 @@ def _get_pythonw_path():
     return pythonw_path
 
 
-def _get_openwithida_path():
-    openwithida_folder = Path(__file__).parent
-
-    openwithida_path = openwithida_folder / config.openwithida_py
-    if not openwithida_path.exists():
-        raise OpenWithIdaInstallerFileDoesNotExistError(f'{openwithida_path} doesn\'t exist')
-
-    return openwithida_path
-
-
 def _parse_args():
     parser = argparse.ArgumentParser(description='Install the OpenWithIDA context menu item.')
 
@@ -89,21 +79,12 @@ def _parse_args():
     parser.add_argument('--pythonw-path', default=_get_pythonw_path(),
                         help='Path to pythonw.exe. '
                              'Defaults to the version you\'re running right now.')
-    parser.add_argument('--openwithida-path', default=_get_openwithida_path(),
-                        help=f'Path to {config.openwithida_py}. '
-                             'Defaults to the same folder as this script.')
 
     return parser.parse_args()
 
 
-def install_openwithida(ida_folder=None, pythonw_path=None, openwithida_path=None):
-    # Lazily calculate default values, as _get_openwithida_path()
-    # throws when executed as part of setup.py
-    ida_folder = ida_folder or _get_newest_ida_folder()
-    pythonw_path = pythonw_path or _get_pythonw_path()
-    openwithida_path = openwithida_path or _get_openwithida_path()
-
-    command = rf'"{pythonw_path}" "{openwithida_path}" "%1"'
+def install_openwithida(ida_folder=_get_newest_ida_folder(), pythonw_path=_get_pythonw_path()):
+    command = rf'"{pythonw_path}" -m {config.package_name} "%1"'
     exe_path = str(Path(ida_folder) / config.ida_32_exe)
 
     # Create "shell" registry key if doesn't exist
@@ -122,4 +103,4 @@ def install_openwithida(ida_folder=None, pythonw_path=None, openwithida_path=Non
 if __name__ == '__main__':
     args = _parse_args()
 
-    install_openwithida(args.ida_folder, args.pythonw_path, args.openwithida_path)
+    install_openwithida(args.ida_folder, args.pythonw_path)

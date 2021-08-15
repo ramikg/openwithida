@@ -28,7 +28,7 @@ The cause is most likely a nonstandard IDA folder location, and the solution is 
 
 ### How to install the _OpenWithIDA_ context menu extension manually?
 
-If the automatic `pip install` installation failed, or if you want to use a custom path for IDA, Python or _OpenWithIDA_, you may manually (re)install the context menu item:
+If the automatic `pip install` installation failed, or if you want to use a custom path for IDA or Python, you may manually (re)install the context menu item:
 
 ```batch
 python installer.py --help

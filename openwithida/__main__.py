@@ -6,7 +6,7 @@ from pathlib import Path
 
 import bitnesslib
 
-import config
+from openwithida import config
 
 SUBPROCESS_DETACHED_PROCESS = 0x00000008
 
