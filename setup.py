@@ -22,7 +22,7 @@ setup(name=config.package_name,
       long_description=long_description,
       long_description_content_type='text/markdown',
       url='https://github.com/ramikg/openwithida',
-      version='0.1.1',
+      version='0.2.0',
       packages=find_packages(),
       install_requires=['bitnesslib>=0.1.1'],
       classifiers=[
