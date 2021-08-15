@@ -1,8 +1,10 @@
 import argparse
 import os
 import subprocess
-import winreg
-from pathlib import Path
+try:
+    import winreg  # Python 3
+except ImportError:
+    import _winreg as winreg  # Python 2
 
 import bitnesslib
 
@@ -25,7 +27,7 @@ def _parse_args():
 
 def _create_detached_process(ida_path, input_path):
     creation_flags = subprocess.CREATE_NEW_PROCESS_GROUP | SUBPROCESS_DETACHED_PROCESS
-    subprocess.Popen([str(ida_path), str(input_path)],
+    subprocess.Popen([ida_path, input_path],
                      creationflags=creation_flags,
                      close_fds=True)
 
@@ -47,11 +49,12 @@ def open_with_ida(ida_folder, input_path):
         # We'd still like to open the file using some IDA
         file_bitness = None
 
-    ida_folder = Path(ida_folder)
     if file_bitness == 64:
-        _create_detached_process(ida_folder / config.ida_64_exe, input_path)
+        ida_64_path = os.path.join(ida_folder, config.ida_64_exe)
+        _create_detached_process(ida_64_path, input_path)
     else:
-        _create_detached_process(ida_folder / config.ida_32_exe, input_path)
+        ida_32_path = os.path.join(ida_folder, config.ida_32_exe)
+        _create_detached_process(ida_32_path, input_path)
 
 
 if __name__ == '__main__':

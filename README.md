@@ -6,10 +6,6 @@ _OpenWithIDA_ efficiently determines a file's bitness, and proceeds to open it u
 
 ![Screenshot](resources/screenshot.png)
 
-## Requirements
-
-Python 3.6+ (doesn't have to be the version you're using for IDA)
-
 ## Installation
 
 ```batch

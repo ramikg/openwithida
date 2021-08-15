@@ -2,8 +2,10 @@ import argparse
 import os
 import re
 import sys
-import winreg
-from pathlib import Path
+try:
+    import winreg  # Python 3
+except ImportError:
+    import _winreg as winreg  # Python 2
 from distutils.version import StrictVersion
 
 from openwithida import config
@@ -26,16 +28,19 @@ class OpenWithIdaInstallerIdaNotFoundError(Exception):
 
 
 def _legal_ida_folder(path):
-    path = Path(path)
+    if not os.path.exists(path):
+        raise OpenWithIdaInstallerIllegalIdaFolderError(
+            '{} doesn\'t exist!'.format(path))
 
-    if not path.exists():
-        raise OpenWithIdaInstallerIllegalIdaFolderError(f'{path} doesn\'t exist!')
+    ida_32_path = os.path.join(path, config.ida_32_exe)
+    if not os.path.exists(ida_32_path):
+        raise OpenWithIdaInstallerIllegalIdaFolderError(
+            '{} not in folder'.format(config.ida_32_exe))
 
-    if not (path / config.ida_32_exe).exists():
-        raise OpenWithIdaInstallerIllegalIdaFolderError(f'{config.ida_32_exe} not in folder')
-
-    if not (path / config.ida_64_exe).exists():
-        raise OpenWithIdaInstallerIllegalIdaFolderError(f'{config.ida_64_exe} not in folder')
+    ida_64_path = os.path.join(path, config.ida_64_exe)
+    if not os.path.exists(ida_64_path):
+        raise OpenWithIdaInstallerIllegalIdaFolderError(
+            '{} not in folder'.format(config.ida_64_exe))
 
     return path
 
@@ -44,28 +49,33 @@ def _get_newest_ida_folder():
     highest_version = '0.0'
     newest_ida_folder = None
 
-    with os.scandir(config.program_files_folder) as iterator:
-        for entry in iterator:
-            match = re.match(r'IDA Pro ([\d.]+)$', entry.name)
-            if match:
-                version = StrictVersion(match.group(1))
-                if version > highest_version:
-                    highest_version = version
-                    newest_ida_folder = entry.path
+    for entry in os.listdir(config.program_files_folder):
+        entry_path = os.path.join(config.program_files_folder, entry)
+
+        if not os.path.isdir(entry_path):
+            continue
+
+        match = re.match(r'IDA Pro ([\d.]+)$', entry)
+        if match:
+            version = StrictVersion(match.group(1))
+            if version > highest_version:
+                highest_version = version
+                newest_ida_folder = entry_path
 
     if not newest_ida_folder:
         raise OpenWithIdaInstallerIdaNotFoundError(
-            f'IDA folder not found in {config.program_files_folder}. Please specify manually.')
+            'IDA folder not found in {}. Please specify manually.'.format(
+                config.program_files_folder))
 
     return newest_ida_folder
 
 
 def _get_pythonw_path():
-    python_folder = Path(sys.executable).parent
+    python_folder = os.path.dirname(sys.executable)
 
-    pythonw_path = python_folder / PYTHONW_EXE
-    if not pythonw_path.exists():
-        raise OpenWithIdaInstallerFileDoesNotExistError(f'{pythonw_path} doesn\'t exist')
+    pythonw_path = os.path.join(python_folder, PYTHONW_EXE)
+    if not os.path.exists(pythonw_path):
+        raise OpenWithIdaInstallerFileDoesNotExistError('{} doesn\'t exist'.format(pythonw_path))
 
     return pythonw_path
 
@@ -75,7 +85,8 @@ def _parse_args():
 
     parser.add_argument('--ida-folder', type=_legal_ida_folder, default=_get_newest_ida_folder(),
                         help='IDA installation folder. '
-                             f'Defaults to the newest IDA in "{config.program_files_folder}".')
+                             'Defaults to the newest IDA in "{}".'.format(
+                                 config.program_files_folder))
     parser.add_argument('--pythonw-path', default=_get_pythonw_path(),
                         help='Path to pythonw.exe. '
                              'Defaults to the version you\'re running right now.')
@@ -84,8 +95,10 @@ def _parse_args():
 
 
 def install_openwithida(ida_folder=_get_newest_ida_folder(), pythonw_path=_get_pythonw_path()):
-    command = rf'"{pythonw_path}" -m {config.package_name} "%1"'
-    exe_path = str(Path(ida_folder) / config.ida_32_exe)
+    command = r'"{pythonw_path}" -m {package_name} "%1"'.format(
+        pythonw_path=pythonw_path,
+        package_name=config.package_name)
+    ida_exe_path = os.path.join(ida_folder, config.ida_32_exe)
 
     # Create "shell" registry key if doesn't exist
     with winreg.CreateKey(config.registry_root_key, config.registry_key) as _:
@@ -95,7 +108,7 @@ def install_openwithida(ida_folder=_get_newest_ida_folder(), pythonw_path=_get_p
     with winreg.CreateKey(config.registry_root_key, openwithida_registry_key) as hkey:
         # Set the "(Default)" value
         winreg.SetValue(hkey, None, winreg.REG_SZ, OPEN_WITH_IDA_VERB)
-        winreg.SetValueEx(hkey, 'Icon', None, winreg.REG_SZ, exe_path)
+        winreg.SetValueEx(hkey, 'Icon', None, winreg.REG_SZ, ida_exe_path)
         with winreg.CreateKey(hkey, 'command') as command_hkey:
             winreg.SetValue(command_hkey, None, winreg.REG_SZ, command)
 

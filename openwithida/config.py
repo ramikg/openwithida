@@ -1,4 +1,7 @@
-import winreg
+try:
+    import winreg  # Python 3
+except ImportError:
+    import _winreg as winreg  # Python 2
 
 package_name = 'openwithida'
 registry_root_key = winreg.HKEY_CURRENT_USER
