@@ -1,6 +1,6 @@
 # OpenWithIDA
 
-Add "Open With IDA" to your Windows context menu.
+Add "Open with IDA" to your Windows context menu.
 
 _OpenWithIDA_ efficiently determines a file's bitness, and proceeds to open it using the correct (32-bit or 64-bit) variant of IDA.
 
