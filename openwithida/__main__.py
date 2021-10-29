@@ -38,7 +38,7 @@ def _get_ida_folder():
         with winreg.OpenKey(config.registry_root_key, registry_key) as hkey:
             ida_exe_path = winreg.QueryValueEx(hkey, 'Icon')[0]
             return os.path.dirname(ida_exe_path)
-    except FileNotFoundError:
+    except WindowsError:
         raise OpenWithIdaNotInstalledError('Please run installer.py')
 
 
