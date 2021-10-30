@@ -25,7 +25,12 @@ Alternatively, run the installer manually (see below).
 
 ### How to run the installer manually?
 
-If you want to specify a custom path for IDA or Python, run
+Manually invoking the installer offers the following additional options:
+
+- Specifying a custom path for IDA or Python
+- Uninstalling the context menu extension
+
+For usage information, run
 
 ```batch
 python installer.py --help
