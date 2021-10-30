@@ -2,11 +2,18 @@ import argparse
 import os
 import re
 import sys
-try:
-    import winreg  # Python 3
-except ImportError:
-    import _winreg as winreg  # Python 2
 from distutils.version import StrictVersion
+try:
+    # Python 3
+    import winreg
+    import tkinter as tk
+    import tkinter.filedialog as tk_filedialog
+except ImportError:
+    # Python 2
+    import _winreg as winreg
+    import Tkinter as tk
+    import tkFileDialog as tk_filedialog
+
 
 from openwithida import config
 
@@ -27,7 +34,11 @@ class OpenWithIdaInstallerIdaNotFoundError(Exception):
     pass
 
 
-def _legal_ida_folder(path):
+class OpenWithIdaInstallerUserCancelledPrompt(Exception):
+    pass
+
+
+def _verify_legal_ida_folder(path):
     if not os.path.exists(path):
         raise OpenWithIdaInstallerIllegalIdaFolderError(
             '{} doesn\'t exist!'.format(path))
@@ -63,11 +74,31 @@ def _get_newest_ida_folder():
                 newest_ida_folder = entry_path
 
     if not newest_ida_folder:
-        raise OpenWithIdaInstallerIdaNotFoundError(
-            'IDA folder not found in {}. Please specify manually.'.format(
-                config.program_files_folder))
+        raise OpenWithIdaInstallerIdaNotFoundError()
 
     return newest_ida_folder
+
+
+def _prompt_user_for_ida_folder():
+    widget = tk.Tk()
+    widget.withdraw()
+
+    folder = tk_filedialog.askdirectory(
+        mustexist=True,
+        initialdir=config.program_files_folder,
+        title='Please choose your IDA folder')
+
+    if not folder:
+        raise OpenWithIdaInstallerUserCancelledPrompt()
+
+    return folder
+
+
+def _get_ida_folder():
+    try:
+        return _get_newest_ida_folder()
+    except OpenWithIdaInstallerIdaNotFoundError:
+        return _prompt_user_for_ida_folder()
 
 
 def _get_pythonw_path():
@@ -83,18 +114,26 @@ def _get_pythonw_path():
 def _parse_args():
     parser = argparse.ArgumentParser(description='Install the OpenWithIDA context menu item.')
 
-    parser.add_argument('--ida-folder', type=_legal_ida_folder, default=_get_newest_ida_folder(),
+    parser.add_argument('--ida-folder',
+                        type=_verify_legal_ida_folder,
                         help='IDA installation folder. '
                              'Defaults to the newest IDA in "{}".'.format(
                                  config.program_files_folder))
-    parser.add_argument('--pythonw-path', default=_get_pythonw_path(),
+    parser.add_argument('--pythonw-path',
+                        default=_get_pythonw_path(),
                         help='Path to pythonw.exe. '
                              'Defaults to the version you\'re running right now.')
 
     return parser.parse_args()
 
 
-def install_openwithida(ida_folder=_get_newest_ida_folder(), pythonw_path=_get_pythonw_path()):
+def install_openwithida(ida_folder=None, pythonw_path=None):
+    # Lazily calculate default values
+    ida_folder = ida_folder or _get_ida_folder()
+    pythonw_path = pythonw_path or _get_pythonw_path()
+
+    _verify_legal_ida_folder(ida_folder)
+
     command = r'"{pythonw_path}" -m {package_name} "%1"'.format(
         pythonw_path=pythonw_path,
         package_name=config.package_name)

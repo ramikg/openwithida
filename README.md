@@ -12,7 +12,8 @@ _OpenWithIDA_ efficiently determines a file's bitness, and proceeds to open it u
 pip install openwithida
 ```
 
-You should now have _OpenWithIDA_ installed using the latest IDA version found on your PC.
+You should now have _OpenWithIDA_ installed using the latest IDA version found on your PC.  
+If not automatically found, you will be prompted to choose your IDA folder.
 
 ## FAQ
 
@@ -20,11 +21,11 @@ You should now have _OpenWithIDA_ installed using the latest IDA version found o
 
 To find out the cause for the error, run `pip install` with the `-v` flag.
 
-The cause is most likely a nonstandard IDA folder location, and the solution is to run the installer manually (see below).
+Alternatively, run the installer manually (see below).
 
-### How to install the _OpenWithIDA_ context menu extension manually?
+### How to run the installer manually?
 
-If the automatic `pip install` installation failed, or if you want to use a custom path for IDA or Python, you may manually (re)install the context menu item:
+If you want to specify a custom path for IDA or Python, run
 
 ```batch
 python installer.py --help
