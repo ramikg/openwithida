@@ -123,6 +123,9 @@ def _parse_args():
                         default=_get_pythonw_path(),
                         help='Path to pythonw.exe. '
                              'Defaults to the version you\'re running right now.')
+    parser.add_argument('--extended-verb',
+                        action='store_true',
+                        help='Will require holding Shift to display the context menu item.')
     parser.add_argument('--uninstall',
                         action='store_true',
                         help='Uninstall the OpenWithIDA context menu item.')
@@ -142,7 +145,7 @@ def uninstall_openwithida():
     winreg.DeleteKey(config.registry_root_key, openwithida_registry_key)
 
 
-def install_openwithida(ida_folder=None, pythonw_path=None):
+def install_openwithida(ida_folder=None, pythonw_path=None, extended_verb=False):
     # Lazily calculate default values
     ida_folder = ida_folder or _get_ida_folder()
     pythonw_path = pythonw_path or _get_pythonw_path()
@@ -162,6 +165,8 @@ def install_openwithida(ida_folder=None, pythonw_path=None):
     with winreg.CreateKey(config.registry_root_key, openwithida_registry_key) as hkey:
         # Set the "(Default)" value
         winreg.SetValue(hkey, None, winreg.REG_SZ, OPEN_WITH_IDA_VERB)
+        if extended_verb:
+            winreg.SetValueEx(hkey, 'Extended', None, winreg.REG_SZ, None)
         winreg.SetValueEx(hkey, 'Icon', None, winreg.REG_SZ, ida_exe_path)
         with winreg.CreateKey(hkey, 'command') as command_hkey:
             winreg.SetValue(command_hkey, None, winreg.REG_SZ, command)
@@ -173,4 +178,4 @@ if __name__ == '__main__':
     if args.uninstall:
         uninstall_openwithida()
     else:
-        install_openwithida(args.ida_folder, args.pythonw_path)
+        install_openwithida(args.ida_folder, args.pythonw_path, args.extended_verb)

@@ -27,7 +27,8 @@ Alternatively, run the installer manually (see below).
 
 Manually invoking the installer offers the following additional options:
 
-- Specifying a custom path for IDA or Python
+- Installing using a custom path for IDA or Python
+- Installing as an extended verb (meaning you have to hold Shift to display it)
 - Uninstalling the context menu extension
 
 For usage information, run
