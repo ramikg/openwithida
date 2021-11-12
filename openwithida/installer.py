@@ -2,7 +2,6 @@ import argparse
 import os
 import re
 import sys
-from distutils.version import StrictVersion
 try:
     # Python 3
     import winreg
@@ -38,6 +37,11 @@ class OpenWithIdaInstallerUserCancelledPrompt(Exception):
     pass
 
 
+def _version_string_to_tuple(version_string):
+    version_parts = version_string.split('.')
+    return tuple(map(int, version_parts))
+
+
 def _verify_legal_ida_folder(path):
     if not os.path.exists(path):
         raise OpenWithIdaInstallerIllegalIdaFolderError(
@@ -57,7 +61,7 @@ def _verify_legal_ida_folder(path):
 
 
 def _get_newest_ida_folder():
-    highest_version = '0.0'
+    highest_version = (0, 0)
     newest_ida_folder = None
 
     for entry in os.listdir(config.program_files_folder):
@@ -68,9 +72,9 @@ def _get_newest_ida_folder():
 
         match = re.match(r'IDA Pro ([\d.]+)$', entry)
         if match:
-            version = StrictVersion(match.group(1))
-            if version > highest_version:
-                highest_version = version
+            version_tuple = _version_string_to_tuple(match.group(1))
+            if version_tuple > highest_version:
+                highest_version = version_tuple
                 newest_ida_folder = entry_path
 
     if not newest_ida_folder:
