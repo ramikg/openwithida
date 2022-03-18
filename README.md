@@ -17,6 +17,16 @@ If not automatically found, you will be prompted to choose your IDA folder.
 
 ## FAQ
 
+### I've upgraded IDA. How to make _OpenWithIDA_ point to the newer version?
+
+If you've completely uninstalled the previous version of IDA, the upgrade should be picked up automatically the next time you click "Open with IDA".
+
+If the old version still exists, simply run
+
+```batch
+pip install --force-reinstall openwithida
+```
+
 ### The context menu item wasn't installed
 
 To find out the cause for the error, run `pip install` with the `-v` flag.
