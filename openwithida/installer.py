@@ -43,17 +43,17 @@ def _version_string_to_tuple(version_string):
 
 
 def _verify_legal_ida_folder(path):
-    if not os.path.exists(path):
+    if not os.path.isdir(path):
         raise OpenWithIdaInstallerIllegalIdaFolderError(
             '{} doesn\'t exist!'.format(path))
 
     ida_32_path = os.path.join(path, config.ida_32_exe)
-    if not os.path.exists(ida_32_path):
+    if not os.path.isfile(ida_32_path):
         raise OpenWithIdaInstallerIllegalIdaFolderError(
             '{} not in folder'.format(config.ida_32_exe))
 
     ida_64_path = os.path.join(path, config.ida_64_exe)
-    if not os.path.exists(ida_64_path):
+    if not os.path.isfile(ida_64_path):
         raise OpenWithIdaInstallerIllegalIdaFolderError(
             '{} not in folder'.format(config.ida_64_exe))
 
@@ -109,7 +109,7 @@ def _get_pythonw_path():
     python_folder = os.path.dirname(sys.executable)
 
     pythonw_path = os.path.join(python_folder, PYTHONW_EXE)
-    if not os.path.exists(pythonw_path):
+    if not os.path.isfile(pythonw_path):
         raise OpenWithIdaInstallerFileDoesNotExistError('{} doesn\'t exist'.format(pythonw_path))
 
     return pythonw_path

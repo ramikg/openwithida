@@ -62,7 +62,7 @@ if __name__ == '__main__':
     args = _parse_args()
 
     ida_folder = _get_ida_folder()
-    if not os.path.exists(ida_folder):
+    if not os.path.isdir(ida_folder):
         # Perhaps the IDA folder was deleted in favour of a newer version.
         installer.install_openwithida()
         ida_folder = _get_ida_folder()
