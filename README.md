@@ -1,3 +1,5 @@
+_Notice: With the release of IDA 8.3, IDA32 has been deprecated, and this extension is no longer required._
+
 # OpenWithIDA
 
 Add "Open with IDA" to your Windows context menu.
