@@ -14,6 +14,7 @@ except ImportError:
     import tkFileDialog as tk_filedialog
 
 
+from openwithida import common
 from openwithida import config
 
 PYTHONW_EXE = 'pythonw.exe'
@@ -35,11 +36,6 @@ class OpenWithIdaInstallerIdaNotFoundError(Exception):
 
 class OpenWithIdaInstallerUserCancelledPrompt(Exception):
     pass
-
-
-def _version_string_to_tuple(version_string):
-    version_parts = version_string.split('.')
-    return tuple(map(int, version_parts))
 
 
 def _verify_legal_ida_folder(path):
@@ -70,12 +66,13 @@ def _get_newest_ida_folder():
         if not os.path.isdir(entry_path):
             continue
 
-        match = re.match(r'IDA Pro ([\d.]+)$', entry)
-        if match:
-            version_tuple = _version_string_to_tuple(match.group(1))
+        try:
+            version_tuple = common.ida_folder_name_to_version_tuple(entry)
             if version_tuple > highest_version:
                 highest_version = version_tuple
                 newest_ida_folder = entry_path
+        except common.OpenWithIdaCommonInvalidIdaFolderName:
+            continue
 
     if not newest_ida_folder:
         raise OpenWithIdaInstallerIdaNotFoundError()
@@ -130,6 +127,9 @@ def _parse_args():
     parser.add_argument('--extended-verb',
                         action='store_true',
                         help='Will require holding Shift to display the context menu item.')
+    parser.add_argument('--use-ida32',
+                        action='store_true',
+                        help='Use IDA32 even in IDA 8.2+')
     parser.add_argument('--uninstall',
                         action='store_true',
                         help='Uninstall the OpenWithIDA context menu item.')
@@ -149,16 +149,17 @@ def uninstall_openwithida():
     winreg.DeleteKey(config.registry_root_key, openwithida_registry_key)
 
 
-def install_openwithida(ida_folder=None, pythonw_path=None, extended_verb=False):
+def install_openwithida(ida_folder=None, pythonw_path=None, extended_verb=False, use_ida32=False):
     # Lazily calculate default values
     ida_folder = ida_folder or _get_ida_folder()
     pythonw_path = pythonw_path or _get_pythonw_path()
 
     _verify_legal_ida_folder(ida_folder)
 
-    command = r'"{pythonw_path}" -m {package_name} "%1"'.format(
+    command = r'"{pythonw_path}" -m {package_name} "%1"{use_ida32}'.format(
         pythonw_path=pythonw_path,
-        package_name=config.package_name)
+        package_name=config.package_name,
+        use_ida32=' --use-ida32' if use_ida32 else '')
     ida_exe_path = os.path.join(ida_folder, config.ida_32_exe)
 
     # Create "shell" registry key if doesn't exist
@@ -182,4 +183,4 @@ if __name__ == '__main__':
     if args.uninstall:
         uninstall_openwithida()
     else:
-        install_openwithida(args.ida_folder, args.pythonw_path, args.extended_verb)
+        install_openwithida(args.ida_folder, args.pythonw_path, args.extended_verb, args.use_ida32)

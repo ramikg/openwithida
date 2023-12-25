@@ -41,6 +41,7 @@ Manually invoking the installer offers the following additional options:
 
 - Installing using a custom path for IDA or Python
 - Installing as an extended verb (meaning you have to hold Shift to display it)
+- Using IDA32 even in IDA 8.2+ (when applicable)
 - Uninstalling the context menu extension
 
 For usage information, run
