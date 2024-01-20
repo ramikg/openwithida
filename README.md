@@ -1,4 +1,5 @@
-_Notice: With the release of IDA 8.3, IDA32 has been deprecated, and this extension is no longer required._
+> [!NOTE]
+> With the release of IDA 8.3, IDA32 has been deprecated, and this extension is no longer required.
 
 # OpenWithIDA
 
